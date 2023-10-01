@@ -6,8 +6,8 @@
 
     $: activeUrl = $page.url.pathname;
     
-    let activeClass = 'text-white font-bold';
-    let nonActiveClass = 'text-white';
+    let activeClass = 'text-white font-bold hover:bg-white hover:text-black';
+    let nonActiveClass = 'text-white hover:bg-white hover:text-black';
     function scrollDetect(el: Event): void {
         const scrollTop = (el.target as HTMLDivElement).scrollTop
         const scrollHeight = (el.target as HTMLDivElement).scrollHeight
@@ -47,11 +47,15 @@
         </NavUl>
     </Navbar>
 </header>
-<main class="text-center p-0 mx-0 w-screen h-screen {$page.route.id === '/' ? 'bg-transparent' : 'bg-black/50'} transition-colors duration-1000">
+<main class="text-center p-0 mx-0 w-screen h-screen {$page.url.pathname === '/' ? 'bg-transparent' : 'bg-black/50'} transition-colors duration-1000">
     <div class="fixed top-0 left-0 right-0 bottom-0 overflow-y-auto overflow-x-hidden" on:scroll={scrollDetect}>
         <div class="w-full h-1/6" bind:this={scrollTop} />
             <slot />
-        <div class="w-full h-1/6" />
+        <div class="w-full h-2" />
+        {#if $page.url.pathname !== '/'}
+            <div class="py-4 mt-4 text-white bg-black/40">
+                Made with ❤ by <a href="https://plyrs.party">Plyrs</a>
+            </div>
+        {/if}
     </div>
 </main>
-

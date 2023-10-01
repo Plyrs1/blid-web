@@ -24,7 +24,7 @@
         c: '/assets/icon/class/c.png',
         d: '/assets/icon/class/d.png',
         e: '/assets/icon/class/e.png',
-    }
+    } as const
 
     type CarType = keyof typeof carType
 
