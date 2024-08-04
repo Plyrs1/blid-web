@@ -3,11 +3,17 @@
 	import { Navbar, NavBrand, NavLi, NavUl, NavHamburger } from 'flowbite-svelte';
 	import { isScrolled, scrollOffset } from '$lib/stores/page';
 	import { afterNavigate } from '$app/navigation';
+	import { isAdmin, isModerator } from '$lib/helper/role';
+	import pb from '$lib/pocketbase';
+	import type { UsersResponse } from '$lib/pocketbaseType';
+	import Toast from '$lib/components/CustomToast.svelte';
 
 	$: activeUrl = $page.url.pathname;
+	$: currentUser = pb.authStore.model as UsersResponse<Array<number>>;
 
 	let activeClass = 'text-white font-bold hover:bg-white hover:text-black';
 	let nonActiveClass = 'text-white hover:bg-white hover:text-black';
+
 	function scrollDetect(el: Event): void {
 		const scrollTop = (el.target as HTMLDivElement).scrollTop;
 		const scrollHeight = (el.target as HTMLDivElement).scrollHeight;
@@ -16,11 +22,13 @@
 		$scrollOffset = scrollHeight - clientHeight - scrollTop;
 		// console.log(`isScrolled: ${$isScrolled} scrollOffset: ${$scrollOffset}`)
 	}
+
 	function onClickScroll(el: HTMLElement): void {
 		el.scrollIntoView({
 			behavior: 'smooth'
 		});
 	}
+
 	afterNavigate(() => {
 		onClickScroll(scrollTop);
 	});
@@ -53,10 +61,17 @@
 			on:click={toggle}
 		>
 			<NavLi href="/">Home</NavLi>
-			<NavLi href="/contents">Contents</NavLi>
-			<NavLi href="/challenges">Challenges</NavLi>
+			<!-- <NavLi href="/contents">Contents</NavLi> -->
+			<!-- <NavLi href="/challenges">Challenges</NavLi> -->
+			{#if isAdmin(currentUser) || isModerator(currentUser)}
+				<NavLi href="/admin">Admin</NavLi>
+			{/if}
 			<NavLi href="/leaderboard">Leaderboard</NavLi>
-			<NavLi href="/admin">Admin</NavLi>
+			{#if !!currentUser}
+				<NavLi href="/logout">Logout</NavLi>
+			{:else}
+				<NavLi href="/login">Login</NavLi>
+			{/if}
 		</NavUl>
 	</Navbar>
 </header>
@@ -81,3 +96,4 @@
 		{/if}
 	</div>
 </main>
+<Toast />

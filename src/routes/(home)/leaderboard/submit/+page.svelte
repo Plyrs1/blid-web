@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { Input, Helper, Button, Select, Dropdown, DropdownItem } from 'flowbite-svelte';
+	import { Input, Helper, Button, Select, Dropdown, DropdownItem, Avatar } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 	import pb from '$lib/pocketbase';
 	import type { LeaderboardCategory } from '$lib/apiTypes';
+	import { goto } from '$app/navigation';
+	import { toast } from '$lib/stores/page';
 
 	// populate form data
 	let categories: Map<string, Array<LeaderboardCategory>> = new Map();
@@ -13,16 +15,16 @@
 	let cars: Array<{ value: string; name: string }> = [];
 
 	// form value
-	let username: string | null = null;
 	let selectedCategory: string | null = null;
 	let timeHour: number | null = null;
-	$: (timeHour ?? 0) > 59 && (timeHour = 59);
+	$: timeHour = validateTime(timeHour);
 	let timeMinute: number | null = null;
-	$: (timeMinute ?? 0) > 59 && (timeMinute = 59);
+	$: timeMinute = validateTime(timeMinute);
 	let timeSecond: number | null = null;
-	$: (timeSecond ?? 0) > 59 && (timeSecond = 59);
+	$: timeSecond = validateTime(timeSecond);
 	let timeMilisecond: number | null = null;
-	$: (timeMilisecond ?? 0) > 999 && (timeMilisecond = 999);
+	$: timeMilisecond =
+		(timeMilisecond ?? 0) > 999 ? 999 : (timeMilisecond ?? 0) < 0 ? 0 : timeMilisecond;
 	let timeTotal = 0;
 	$: timeTotal =
 		(((parseInt(`${timeHour}`) || 0) * 60 + (parseInt(`${timeMinute}`) || 0)) * 60 +
@@ -48,6 +50,7 @@
 				name: data.name
 			}));
 		} catch (err) {
+			$toast = { type: 'danger', message: 'Unable to fetch car list' };
 			console.error(err);
 		}
 	};
@@ -62,23 +65,48 @@
 				categories.set(cat.category, entry);
 			});
 		} catch (err) {
-			console.log(err);
+			$toast = { type: 'danger', message: 'Unable to fetch categories' };
+			console.error(err);
 		}
 	};
 
-	const onFormSubmit = async () => {
-		const data: Record<string, string | number | null> = {
-			user: username,
-			car: selectedCar,
-			category: selectedCategory,
-			time: timeTotal,
-			url: videoUrl
-		};
-		if (achieveDate !== null) data.achieved = achieveDate;
-		await pb.collection('lb_record').create(data);
+	const onFormSubmit = async (e: SubmitEvent) => {
+		try {
+			await pb.collection('users').authRefresh();
+			if (!pb.authStore.isValid || !pb.authStore.model) throw new Error("Can't save data");
+			const data: Record<string, string | number | null> = {
+				user: pb.authStore.model.id,
+				car: selectedCar,
+				category: selectedCategory,
+				time: timeTotal,
+				url: videoUrl
+			};
+			if (achieveDate !== null) data.achieved = achieveDate;
+			await pb.collection('lb_record').create(data);
+
+			// clear form
+			(e.target as HTMLFormElement).reset();
+			selectedCar = null;
+			selectedCategory = null;
+			$toast = {
+				type: 'success',
+				message: 'Score submitted successfully! Moderator will verify it asap.'
+			};
+		} catch (err) {
+			$toast = { type: 'danger', message: 'Cannot submit data, please contact admin' };
+			console.error(err);
+		}
+	};
+
+	const validateTime = (time: number | null) => {
+		if (time === null) return null;
+		if (time > 59) return 59;
+		else if (time < 0) return 0;
+		return time;
 	};
 
 	onMount(async () => {
+		if (!pb.authStore.isValid) return goto('/logout');
 		await getCategories();
 		await getCars();
 	});
@@ -87,15 +115,25 @@
 <div class="grid w-full px-4 md:px-0 place-items-center gap-6">
 	<div class="text-white text-6xl">Submit your best time</div>
 	<form class="text-white text-left max-w-lg" on:submit|preventDefault={onFormSubmit}>
-		<div class="mb-6">
-			<label for="username" class="mb-2">Username</label>
-			<Input type="text" placeholder="Plyrs" required bind:value={username} />
+		<div class="mb-6 flex gap-4">
+			<Avatar src={pb.authStore.model?.avatarUrl} rounded size="lg" />
+			<div class="flex flex-col justify-center">
+				<div class="text-2xl">{pb.authStore.model?.username}</div>
+				{#if pb.authStore.model?.created}
+					<div class="text-sm">
+						Terdaftar pada tanggal {new Date(pb.authStore.model.created).toLocaleDateString(
+							'id-ID',
+							{ day: 'numeric', month: 'long', year: 'numeric' }
+						)}
+					</div>
+				{/if}
+			</div>
 		</div>
 		<div class="mb-6">
 			<label for="categories" class="mb-2">Kategori</label>
 			<div class="flex">
 				<button
-					class=" min-w-32 flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600"
+					class=" min-w-32 flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
 					type="button"
 				>
 					{categoryName ?? 'Pilih kategori'}
@@ -119,6 +157,7 @@
 					placeholder="Pilih track"
 					class="!rounded-s-none"
 					required
+					disabled={subcategories.length === 0}
 					bind:value={selectedCategory}
 				/>
 			</div>
@@ -148,6 +187,7 @@
 			<Input
 				type="text"
 				id="videoUrl"
+				pattern={'^(https?://)?((www.)?youtube.com|youtu.be)/.+$'}
 				placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 				required
 				bind:value={videoUrl}
@@ -156,7 +196,13 @@
 		<div class="mb-6">
 			<label for="desc" class="mb-2">Deskripsi</label>
 			<Input let:props>
-				<textarea id="desc" required {...props} bind:value={desc} />
+				<textarea
+					id="desc"
+					required
+					{...props}
+					bind:value={desc}
+					placeholder="Mantap min lanjutkan"
+				/>
 			</Input>
 		</div>
 		<Helper class="mb-6 text-white text-sm">

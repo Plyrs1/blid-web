@@ -14,7 +14,7 @@
 	import Tab from '$lib/components/Tab.svelte';
 	import TabBar from '$lib/components/TabBar.svelte';
 	import { writable, type Writable } from 'svelte/store';
-	import { LbCarsResponse, LbRecordResponse, UsersResponse } from '$lib/pocketbaseType';
+	import type { LbCarsResponse, LbRecordResponse, UsersResponse } from '$lib/pocketbaseType';
 
 	let activeTab: string;
 	let activeClass: Writable<string> = writable('/leaderboard');
