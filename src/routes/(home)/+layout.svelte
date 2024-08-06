@@ -6,10 +6,10 @@
 	import { isAdmin, isModerator } from '$lib/helper/role';
 	import pb from '$lib/pocketbase';
 	import type { UsersResponse } from '$lib/pocketbaseType';
-	import Toast from '$lib/components/CustomToast.svelte';
+	import { onMount } from 'svelte';
 
 	$: activeUrl = $page.url.pathname;
-	$: currentUser = pb.authStore.model as UsersResponse<Array<number>>;
+	$: currentUser = pb.authStore.model as UsersResponse<Array<string>>;
 
 	let activeClass = 'text-white font-bold hover:bg-white hover:text-black';
 	let nonActiveClass = 'text-white hover:bg-white hover:text-black';
@@ -20,7 +20,6 @@
 		const clientHeight = (el.target as HTMLDivElement).clientHeight;
 		$isScrolled = scrollTop > 100;
 		$scrollOffset = scrollHeight - clientHeight - scrollTop;
-		// console.log(`isScrolled: ${$isScrolled} scrollOffset: ${$scrollOffset}`)
 	}
 
 	function onClickScroll(el: HTMLElement): void {
@@ -33,6 +32,15 @@
 		onClickScroll(scrollTop);
 	});
 
+	onMount(() => {
+		const loading = document.getElementById('loading-modal');
+		if (loading) {
+			loading.style.opacity = '0';
+			setTimeout(() => {
+				loading.remove();
+			}, 5000);
+		}
+	});
 	let scrollTop: HTMLElement;
 </script>
 
@@ -96,4 +104,3 @@
 		{/if}
 	</div>
 </main>
-<Toast />

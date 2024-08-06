@@ -1,13 +1,11 @@
 import type { UsersResponse } from '$lib/pocketbaseType';
 
-export const isAdmin = (profile: UsersResponse<Array<number>>) => {
-	const test = (profile?.roles ?? []).indexOf(0) !== -1;
-	console.log({ func: 'isAdmin', profile, test });
+export const isAdmin = (profile: UsersResponse<Array<string>>) => {
+	const test = (profile?.roles ?? []).indexOf('admin') !== -1;
 	return test;
 };
 
-export const isModerator = (profile: UsersResponse<Array<number>>) => {
-	const test = (profile?.roles ?? []).indexOf(10) !== -1;
-	console.log({ func: 'isModerator', profile, test });
+export const isModerator = (profile: UsersResponse<Array<string>>) => {
+	const test = (profile?.roles ?? []).indexOf('mod') !== -1;
 	return test;
 };

@@ -40,10 +40,12 @@ export type AuthSystemFields<T = never> = {
 export type LbApproveLogRecord = {
 	approvedBy?: RecordIdString;
 	entry?: RecordIdString;
+	isApproved?: boolean;
 };
 
 export type LbCarsRecord = {
 	name?: string;
+	submitter?: RecordIdString;
 };
 
 export type LbCategoryRecord = {
@@ -61,8 +63,8 @@ export type LbRecordRecord = {
 };
 
 export type UsersRecord<Troles = unknown> = {
-	avatar?: string;
 	avatarUrl?: string;
+	banned?: boolean;
 	discordId?: string;
 	name?: string;
 	roles?: null | Troles;

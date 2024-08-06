@@ -36,7 +36,7 @@
 	const toastSubscriber = toast.subscribe(() => {
 		setTimeout(() => {
 			toast.set(null);
-		}, 5000);
+		}, $toast?.duration ?? 5000);
 	});
 
 	onDestroy(toastSubscriber);

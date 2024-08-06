@@ -15,7 +15,6 @@
 	import { isAdmin, isModerator } from '$lib/helper/role';
 	import type { UsersResponse } from '$lib/pocketbaseType';
 	import { onMount } from 'svelte';
-	// import { ChartPieSolid, GridSolid, MailBoxSolid, UserSolid, ArrowRightToBracketOutline, EditOutline } from 'flowbite-svelte-icons';
 	let spanClass = 'flex-1 ms-3 whitespace-nowrap';
 
 	let site = {
@@ -31,29 +30,48 @@
 	const nonActiveClass =
 		'text-white hover:text-black flex items-center p-2 text-base font-normal rounded-lg hover:bg-white';
 
-	let currentUser: UsersResponse<Array<number>>;
+	let currentUser: UsersResponse<Array<string>>;
 
 	const validateUser = async () => {
 		currentUser = (await pb.collection('users').authRefresh()).record as UsersResponse<
-			Array<number>
+			Array<string>
 		>;
-		if (!pb.authStore.isValid || !(isAdmin(currentUser) || isModerator(currentUser)))
+		if (!pb.authStore.isValid || !(isAdmin(currentUser) || isModerator(currentUser))) {
 			window.location.href = '/logout';
+		} else {
+			const loading = document.getElementById('loading-modal');
+			if (loading) {
+				loading.style.opacity = '0';
+				setTimeout(() => {
+					loading.remove();
+				}, 2000);
+			}
+		}
 	};
 
 	onMount(validateUser);
 	beforeNavigate(validateUser);
+
+	// TODO: create guard check before even rendering the page
+	//       so that if someone tries to open the url, they will
+	//       see nothing
 </script>
 
+<!-- something like this -->
+
+<!-- {#if isAdmin() || isModerator()} -->
+<!-- .... -->
+<!-- {:else} -->
+<!-- page not found -->
+<!-- {/if} -->
 <Drawer
 	hidden={false}
 	backdrop={false}
 	activateClickOutside={false}
 	transitionType="fly"
-	width="w-64"
-	class="overflow-clip bg-transparent fixed h-min bottom-16 left-0 top-auto md:absolute md:bottom-auto {isMenuShown
+	class="overflow-clip bg-transparent fixed h-min bottom-16 left-0 top-auto xl:absolute xl:bottom-auto {isMenuShown
 		? ''
-		: 'invisible'} md:visible"
+		: 'invisible'} xl:visible"
 	id="sidebar"
 >
 	<Sidebar {activeUrl} {activeClass} {nonActiveClass}>
@@ -88,25 +106,26 @@
 							<Icon icon="ri:user-3-line" />
 						</svelte:fragment>
 					</SidebarItem>
-					<SidebarItem label="Config" href="/admin/config/">
-						<svelte:fragment slot="icon">
-							<Icon icon="ri:settings-5-line" />
-						</svelte:fragment>
-					</SidebarItem>
 				{/if}
+				<SidebarItem label="Config" href="/admin/config/">
+					<svelte:fragment slot="icon">
+						<Icon icon="ri:settings-5-line" />
+					</svelte:fragment>
+				</SidebarItem>
 			</SidebarGroup>
 		</SidebarWrapper>
 	</Sidebar>
 </Drawer>
 
 <Button
-	class="w-12 h-12 bg-black/40 fixed bottom-0 left-0 m-4 p-2 md:invisible"
+	class="w-12 h-12 bg-black/40 fixed bottom-0 left-0 m-4 p-2 xl:invisible"
 	on:click={() => (isMenuShown = !isMenuShown)}
 >
 	<Icon icon="ri:menu-fill" class="w-full h-full text-white" />
 </Button>
-<div class="flex px-4 mx-auto w-full bg-black/40 min-h-full">
-	<main class="lg:ml-72 w-full mx-auto">
+
+<div class="flex p-4 mx-auto w-full bg-black/40 h-full text-white">
+	<main class="xl:ml-64 w-full h-full overflow-y-scroll mx-auto bg-black/40 rounded p-4">
 		<slot />
 	</main>
 </div>

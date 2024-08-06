@@ -10,6 +10,7 @@ interface PageData {
 export interface ToastData {
 	type: 'info' | 'danger' | 'warn' | 'success';
 	message: string;
+	duration?: number;
 }
 
 const isScrolled: Writable<boolean> = writable(false);
