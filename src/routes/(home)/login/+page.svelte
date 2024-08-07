@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import pb from '$lib/pocketbase';
 	import type { UsersResponse } from '$lib/pocketbaseType';
 	import { toast } from '$lib/stores/page';
@@ -16,7 +15,7 @@
 		}
 
 		$toast = { type: 'success', message: 'Login success!' };
-		setTimeout(() => goto('/'), 3000);
+		setTimeout(() => (window.location.href = '/'), 3000);
 		return true;
 	};
 </script>

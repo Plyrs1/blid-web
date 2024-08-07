@@ -15,26 +15,24 @@
 	import CarListRow from './CarListRow.svelte';
 	import { toast } from '$lib/stores/page';
 	let searchTerm = '';
-	let items: Array<LbCarsResponse<{ submitter: UsersResponse }>> = [];
+	let items: Array<LbCarsResponse<{ author: UsersResponse }>> = [];
 	let currentPage = 1;
 	let pageSize = 10;
 	let isAdding = false;
 	$: filteredItems = items
 		.filter(
 			(item) =>
-				`${item.name.toLowerCase()}${item.expand?.submitter.name}`.indexOf(
+				`${item.name.toLowerCase()}${item.expand?.author.name}`.indexOf(
 					searchTerm.toLowerCase()
 				) !== -1
 		)
 		.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 	const getCarLists = async () => {
-		items = await pb
-			.collection('lb_cars')
-			.getFullList<LbCarsResponse<{ submitter: UsersResponse }>>({
-				sort: 'created',
-				expand: 'submitter',
-				fields: 'id,name,expand.submitter.name,created,updated'
-			});
+		items = await pb.collection('lb_cars').getFullList<LbCarsResponse<{ author: UsersResponse }>>({
+			sort: 'created',
+			expand: 'author',
+			fields: 'id,name,expand.author.name,created,updated'
+		});
 	};
 
 	const onEdit = async (e: CustomEvent<{ id: string | undefined; name: string }>) => {
@@ -58,7 +56,7 @@
 			console.error({ err });
 			$toast = {
 				type: 'danger',
-				message: 'Cannot save car',
+				message: `Cannot save car. Probably because you don't have permission to edit this car.`,
 				duration: 2000
 			};
 		} finally {
@@ -80,7 +78,7 @@
 			console.error({ err });
 			$toast = {
 				type: 'danger',
-				message: 'Cannot delete car. You can only delete the car that you submit.'
+				message: `Cannot delete car.  Probably because you don't have permission to delete this car.`
 			};
 		} finally {
 			onCancelEdit();
@@ -99,7 +97,7 @@
 </script>
 
 <div class="flex gap-2 justify-between">
-	<Input placeholder="Search by car name, submitter" bind:value={searchTerm} class="max-w-64" />
+	<Input placeholder="Search by car name, author" bind:value={searchTerm} class="max-w-64" />
 	<Button
 		outline
 		class="shrink-0 border-white text-white gap-2 hover:bg-white hover:text-black"
@@ -116,7 +114,7 @@
 	<TableHead>
 		<TableHeadCell>ID</TableHeadCell>
 		<TableHeadCell>Car Name</TableHeadCell>
-		<TableHeadCell>Submitter</TableHeadCell>
+		<TableHeadCell>Author</TableHeadCell>
 		<TableHeadCell>Created On</TableHeadCell>
 		<TableHeadCell>Actions</TableHeadCell>
 	</TableHead>

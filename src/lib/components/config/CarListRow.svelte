@@ -1,22 +1,13 @@
 <script lang="ts">
+	import { formatDate } from '$lib/helper/misc';
 	import type { LbCarsResponse, UsersResponse } from '$lib/pocketbaseType';
 	import Icon from '@iconify/svelte';
 	import { Button, ButtonGroup, Input, TableBodyCell, TableBodyRow } from 'flowbite-svelte';
 	import { createEventDispatcher, onMount } from 'svelte';
 
-	const formatDate = (date: string) => {
-		return new Date(date).toLocaleDateString('en-US', {
-			day: 'numeric',
-			month: 'long',
-			year: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit',
-			hour12: true
-		});
-	};
 	let editedName: string;
 
-	export let item: Partial<LbCarsResponse<{ submitter: UsersResponse }>> = {};
+	export let item: Partial<LbCarsResponse<{ author: UsersResponse }>> = {};
 	export let isEditing = false;
 
 	const dispatcher = createEventDispatcher();
@@ -68,7 +59,7 @@
 		{/if}
 	</TableBodyCell>
 	<TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
-		{item.expand?.submitter.name ?? ''}
+		{item.expand?.author.name ?? ''}
 	</TableBodyCell>
 	<TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
 		<span title={item.updated ? `\nUpdated on ${formatDate(item.updated)}` : ''}>
@@ -76,23 +67,21 @@
 		</span>
 	</TableBodyCell>
 	<TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
-		<div class="flex gap-2">
-			<ButtonGroup>
-				<Button
-					outline
-					class="border-white text-white hover:bg-white hover:text-black"
-					on:click={() => (isEditing = !isEditing)}
-				>
-					<Icon icon="ri:pencil-line" width="1.6em" />
-				</Button>
-				<Button
-					outline
-					class="border-white text-white hover:bg-white hover:text-black"
-					on:click={() => onDelete(item.id)}
-				>
-					<Icon icon="ri:delete-bin-6-line" width="1.6em" />
-				</Button>
-			</ButtonGroup>
-		</div>
+		<ButtonGroup>
+			<Button
+				outline
+				class="border-white text-white hover:bg-white hover:text-black"
+				on:click={() => (isEditing = !isEditing)}
+			>
+				<Icon icon="ri:pencil-line" width="1.6em" />
+			</Button>
+			<Button
+				outline
+				class="border-white text-white hover:bg-white hover:text-black"
+				on:click={() => onDelete(item.id)}
+			>
+				<Icon icon="ri:delete-bin-6-line" width="1.6em" />
+			</Button>
+		</ButtonGroup>
 	</TableBodyCell>
 </TableBodyRow>

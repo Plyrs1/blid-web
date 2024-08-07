@@ -79,7 +79,8 @@
 				car: selectedCar,
 				category: selectedCategory,
 				time: timeTotal,
-				url: videoUrl
+				url: videoUrl,
+				desc
 			};
 			if (achieveDate !== null) data.achieved = achieveDate;
 			await pb.collection('lb_record').create(data);
@@ -178,7 +179,7 @@
 				<Select id="car" items={cars} placeholder="Piih mobil" required bind:value={selectedCar} />
 			</div>
 			<div>
-				<label for="achieveDate" class="mb-2">Tanggal</label>
+				<label for="achieveDate" class="mb-2">Tanggal Main</label>
 				<Input type="date" id="achieveDate" required bind:value={achieveDate} />
 			</div>
 		</div>
@@ -187,7 +188,7 @@
 			<Input
 				type="text"
 				id="videoUrl"
-				pattern={'^(https?://)?((www.)?youtube.com|youtu.be)/.+$'}
+				pattern={'^https?://((www.)?youtube.com|youtu.be)/.+$'}
 				placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 				required
 				bind:value={videoUrl}

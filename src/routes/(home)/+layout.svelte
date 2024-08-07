@@ -11,8 +11,8 @@
 	$: activeUrl = $page.url.pathname;
 	$: currentUser = pb.authStore.model as UsersResponse<Array<string>>;
 
-	let activeClass = 'text-white font-bold hover:bg-white hover:text-black';
-	let nonActiveClass = 'text-white hover:bg-white hover:text-black';
+	let activeClass = 'text-white font-bold hover:bg-white hover:text-black md:px-4 md:py-2';
+	let nonActiveClass = 'text-white hover:bg-white hover:text-black md:px-4 md:py-2';
 
 	function scrollDetect(el: Event): void {
 		const scrollTop = (el.target as HTMLDivElement).scrollTop;
@@ -38,7 +38,7 @@
 			loading.style.opacity = '0';
 			setTimeout(() => {
 				loading.remove();
-			}, 5000);
+			}, 2000);
 		}
 	});
 	let scrollTop: HTMLElement;
@@ -54,7 +54,7 @@
 		let:toggle
 	>
 		<NavBrand href="/">
-			<img src="/assets/logo.png" class="mr-3 h-6 sm:h-9" alt=" Logo" />
+			<img src="/assets/logo.png" class="mx-3 h-6 sm:h-9" alt=" Logo" />
 		</NavBrand>
 		<NavHamburger
 			on:click={toggle}
@@ -65,16 +65,16 @@
 			{hidden}
 			{activeClass}
 			{nonActiveClass}
-			ulClass="flex flex-col p-4 mt-4 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium bg-black/40 outline outline-2 outline-white md:outline-none md:bg-transparent"
+			ulClass="flex flex-col p-4 mt-4 md:flex-row md:space-x-4 md:mt-0 md:text-sm md:font-medium bg-black/40 outline outline-2 outline-white md:outline-none md:bg-transparent"
 			on:click={toggle}
 		>
 			<NavLi href="/">Home</NavLi>
 			<!-- <NavLi href="/contents">Contents</NavLi> -->
 			<!-- <NavLi href="/challenges">Challenges</NavLi> -->
 			{#if isAdmin(currentUser) || isModerator(currentUser)}
-				<NavLi href="/admin">Admin</NavLi>
+				<NavLi href="/admin/">Admin</NavLi>
 			{/if}
-			<NavLi href="/leaderboard">Leaderboard</NavLi>
+			<NavLi href="/leaderboard/">Leaderboard</NavLi>
 			{#if !!currentUser}
 				<NavLi href="/logout">Logout</NavLi>
 			{:else}

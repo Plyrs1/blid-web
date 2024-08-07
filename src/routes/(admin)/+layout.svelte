@@ -15,6 +15,7 @@
 	import { isAdmin, isModerator } from '$lib/helper/role';
 	import type { UsersResponse } from '$lib/pocketbaseType';
 	import { onMount } from 'svelte';
+	import { newSubmissionCount } from '$lib/stores/admin';
 	let spanClass = 'flex-1 ms-3 whitespace-nowrap';
 
 	let site = {
@@ -49,7 +50,25 @@
 		}
 	};
 
-	onMount(validateUser);
+	const getSubmissionCount = async () => {
+		const pendingSubmisson = await pb.collection('lb_record').getList(1, 1, {
+			filter: 'lb_approve_log_via_entry.entry:length = 0'
+		});
+		$newSubmissionCount = pendingSubmisson.totalItems;
+	};
+
+	onMount(async () => {
+		await validateUser();
+		await getSubmissionCount();
+		const loading = document.getElementById('loading-modal');
+		if (loading) {
+			loading.style.opacity = '0';
+			setTimeout(() => {
+				loading.remove();
+			}, 2000);
+		}
+	});
+
 	beforeNavigate(validateUser);
 
 	// TODO: create guard check before even rendering the page
@@ -93,11 +112,13 @@
 						<Icon icon="ri:download-2-line" />
 					</svelte:fragment>
 					<svelte:fragment slot="subtext">
-						<span
-							class="inline-flex justify-center items-center p-3 ms-3 w-3 h-3 text-sm font-medium bg-red-400 rounded-full"
-						>
-							3
-						</span>
+						{#if $newSubmissionCount > 0}
+							<span
+								class="inline-flex justify-center items-center p-3 ms-3 w-3 h-3 text-sm font-medium bg-red-400 rounded-full"
+							>
+								{$newSubmissionCount}
+							</span>
+						{/if}
 					</svelte:fragment>
 				</SidebarItem>
 				{#if isAdmin(currentUser)}

@@ -38,14 +38,14 @@ export type AuthSystemFields<T = never> = {
 // Record types for each collection
 
 export type LbApproveLogRecord = {
-	approvedBy?: RecordIdString;
+	author?: RecordIdString;
 	entry?: RecordIdString;
 	isApproved?: boolean;
 };
 
 export type LbCarsRecord = {
+	author?: RecordIdString;
 	name?: string;
-	submitter?: RecordIdString;
 };
 
 export type LbCategoryRecord = {
@@ -57,6 +57,7 @@ export type LbRecordRecord = {
 	achieved?: IsoDateString;
 	car: RecordIdString;
 	category: RecordIdString;
+	desc?: string;
 	time: number;
 	url?: string;
 	user: RecordIdString;
