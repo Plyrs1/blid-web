@@ -43,6 +43,7 @@
 	};
 
 	export let item: UsersResponse<Array<string>>;
+	export let isAdmin: boolean = false;
 </script>
 
 <TableBodyRow>
@@ -80,24 +81,26 @@
 	</TableBodyCell>
 	<TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
 		<ButtonGroup>
-			{#if Array.from(item.roles ?? []).indexOf('mod') === -1}
-				<Button
-					outline
-					class="border-white text-white hover:bg-white hover:text-black"
-					on:click={() => onUserPromote(item.id)}
-				>
-					<Icon icon="ri:shield-user-line" width="1.6em" />
-				</Button>
-				<Tooltip>Promote to moderator</Tooltip>
-			{:else}
-				<Button
-					outline
-					class="border-white text-red-500 hover:bg-white hover:text-black"
-					on:click={() => onUserDemote(item.id)}
-				>
-					<Icon icon="ri:user-unfollow-line" width="1.6em" />
-				</Button>
-				<Tooltip>Demote user</Tooltip>
+			{#if isAdmin}
+				{#if Array.from(item.roles ?? []).indexOf('mod') === -1}
+					<Button
+						outline
+						class="border-white text-white hover:bg-white hover:text-black"
+						on:click={() => onUserPromote(item.id)}
+					>
+						<Icon icon="ri:shield-user-line" width="1.6em" />
+					</Button>
+					<Tooltip>Promote to moderator</Tooltip>
+				{:else}
+					<Button
+						outline
+						class="border-white text-red-500 hover:bg-white hover:text-black"
+						on:click={() => onUserDemote(item.id)}
+					>
+						<Icon icon="ri:user-unfollow-line" width="1.6em" />
+					</Button>
+					<Tooltip>Demote user</Tooltip>
+				{/if}
 			{/if}
 			<Button
 				outline
@@ -108,11 +111,12 @@
 			>
 				{#if item.isBanned}
 					<Icon icon="ri:lock-unlock-line" width="1.6em" />
+                    <Tooltip>Unban user</Tooltip>
 				{:else}
 					<Icon icon="ri:lock-2-line" width="1.6em" />
+                    <Tooltip>Ban user</Tooltip>
 				{/if}
 			</Button>
-			<Tooltip>Ban user</Tooltip>
 		</ButtonGroup>
 	</TableBodyCell>
 </TableBodyRow>

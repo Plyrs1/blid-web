@@ -15,7 +15,7 @@
 	import { isAdmin, isModerator } from '$lib/helper/role';
 	import type { UsersResponse } from '$lib/pocketbaseType';
 	import { onMount } from 'svelte';
-	import { newSubmissionCount } from '$lib/stores/admin';
+	import { isCurrentUserAdmin, newSubmissionCount } from '$lib/stores/admin';
 	import { toast } from '$lib/stores/page';
 	import type { ClientResponseError } from 'pocketbase';
 	let spanClass = 'flex-1 ms-3 whitespace-nowrap';
@@ -27,6 +27,7 @@
 	};
 
 	$: activeUrl = $page.url.pathname;
+	isCurrentUserAdmin.subscribe(i => console.log({ isCurrentUserAdmin: i }))
 	let isMenuShown = true;
 
 	const activeClass = 'text-black flex items-center p-2 text-base font-normal rounded-lg bg-white';
@@ -41,8 +42,10 @@
 				Array<string>
 			>;
 			if (!pb.authStore.isValid || !(isAdmin(currentUser) || isModerator(currentUser))) {
+				$isCurrentUserAdmin = false;
 				window.location.href = '/logout';
 			} else {
+				$isCurrentUserAdmin = isAdmin(currentUser);
 				const loading = document.getElementById('loading-modal');
 				if (loading) {
 					loading.style.opacity = '0';
@@ -58,6 +61,7 @@
 				type: 'danger',
 				message: 'Unauthorized, please login'
 			};
+			$isCurrentUserAdmin = false;
 			goto('/');
 			throw err;
 		}
@@ -84,24 +88,14 @@
 
 	beforeNavigate(validateUser);
 
-	// TODO: create guard check before even rendering the page
-	//       so that if someone tries to open the url, they will
-	//       see nothing
 </script>
 
-<!-- something like this -->
-
-<!-- {#if isAdmin() || isModerator()} -->
-<!-- .... -->
-<!-- {:else} -->
-<!-- page not found -->
-<!-- {/if} -->
 <Drawer
 	hidden={false}
 	backdrop={false}
 	activateClickOutside={false}
 	transitionType="fly"
-	class="overflow-clip bg-transparent fixed h-min bottom-16 left-0 top-auto xl:absolute xl:bottom-auto {isMenuShown
+	class="overflow-clip bg-transparent fixed h-min bottom-16 left-0 top-auto xl:absolute xl:bottom-auto z-40 {isMenuShown
 		? ''
 		: 'invisible'} xl:visible"
 	id="sidebar"
@@ -134,13 +128,11 @@
 						{/if}
 					</svelte:fragment>
 				</SidebarItem>
-				{#if isAdmin(currentUser)}
-					<SidebarItem label="Users" href="/admin/users/">
-						<svelte:fragment slot="icon">
-							<Icon icon="ri:user-3-line" />
-						</svelte:fragment>
-					</SidebarItem>
-				{/if}
+				<SidebarItem label="Users" href="/admin/users/">
+					<svelte:fragment slot="icon">
+						<Icon icon="ri:user-3-line" />
+					</svelte:fragment>
+				</SidebarItem>
 				<SidebarItem label="Config" href="/admin/config/">
 					<svelte:fragment slot="icon">
 						<Icon icon="ri:settings-5-line" />

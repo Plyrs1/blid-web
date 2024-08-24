@@ -12,15 +12,20 @@
 		Button,
 		ButtonGroup,
 		Input,
+		P,
 		Spinner,
 		Table,
 		TableBody,
 		TableBodyCell,
 		TableBodyRow,
 		TableHead,
-		TableHeadCell
+		TableHeadCell,
+
+		Tooltip
+
 	} from 'flowbite-svelte';
 	import { createEventDispatcher } from 'svelte';
+	import { slide } from 'svelte/transition';
 
 	export let data: Array<
 		LbApproveLogResponse<{
@@ -39,6 +44,9 @@
 				.toLowerCase()
 				.indexOf(searchTerm.toLowerCase()) !== -1
 	);
+
+	let openRow: number | null = null
+	const toggleRow = (i: number) => openRow = openRow === i ? null : i;
 
 	const dispatcher = createEventDispatcher();
 	const onRefresh = () => {
@@ -78,7 +86,7 @@
 			<TableHeadCell>Actions</TableHeadCell>
 		</TableHead>
 		<TableBody>
-			{#each filteredItems as list}
+			{#each filteredItems as list, i}
 				<TableBodyRow>
 					<TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium w-full min-w-max">
 						{list.expand?.entry.expand?.user?.name ?? ''}
@@ -93,8 +101,9 @@
 						{list.expand?.entry.expand?.category.category} - {list.expand?.entry.expand?.category
 							.subcategory}
 					</TableBodyCell>
-					<TableBodyCell>
-						{list.expand?.author?.name ?? '-'}
+					<TableBodyCell on:click={() => toggleRow(i)}>
+						<div>{list.expand?.author?.name ?? '-'}</div>
+						<Tooltip>Click to view reject reason</Tooltip>
 					</TableBodyCell>
 					<TableBodyCell>
 						{formatDate(list.created)}
@@ -108,6 +117,7 @@
 							>
 								<Icon icon="ri:play-circle-line" width="1.6em" />
 							</Button>
+							<Tooltip>Open YouTube</Tooltip>
 						</ButtonGroup>
 					</TableBodyCell>
 					<TableBodyCell>
@@ -119,6 +129,7 @@
 							>
 								<Icon icon="ri:check-line" width="1.6em" />
 							</Button>
+							<Tooltip>Approve Submission</Tooltip>
 							<Button
 								outline
 								class="border-white text-white hover:bg-white hover:text-black"
@@ -126,9 +137,20 @@
 							>
 								<Icon icon="ri:delete-bin-6-line" width="1.6em" />
 							</Button>
+							<Tooltip>Move to Pending</Tooltip>
 						</ButtonGroup>
 					</TableBodyCell>
 				</TableBodyRow>
+				{#if openRow === i && !!list.reason}
+				<TableBodyRow>
+					<TableBodyCell colspan="8" tdClass="bg-black/40 p-4 rounded-lg rounded-t-none">
+						<div transition:slide>
+							<span class=" text-lg">Reason:</span>
+							<P class="text-white">{list.reason}</P>
+						</div>
+					</TableBodyCell>
+				</TableBodyRow>
+				{/if}
 			{/each}
 		</TableBody>
 	</Table>

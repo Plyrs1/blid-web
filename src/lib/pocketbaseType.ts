@@ -49,6 +49,7 @@ export type LbApproveLogRecord = {
 	author?: RecordIdString;
 	entry?: RecordIdString;
 	isApproved?: boolean;
+	reason?: string;
 };
 
 export type LbCarsRecord = {

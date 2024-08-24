@@ -12,13 +12,20 @@
 		Button,
 		ButtonGroup,
 		Input,
+		Modal,
 		Spinner,
 		Table,
 		TableBody,
 		TableBodyCell,
 		TableBodyRow,
 		TableHead,
-		TableHeadCell
+		TableHeadCell,
+
+		Textarea,
+
+		Tooltip
+
+
 	} from 'flowbite-svelte';
 	import { createEventDispatcher } from 'svelte';
 
@@ -40,15 +47,27 @@
 				.indexOf(searchTerm.toLowerCase()) !== -1
 	);
 
+	let isRejectModalOpen = false;
+	let rejectId = "";
+
+	const onRejectFormSubmit = (e: SubmitEvent) => {
+		const configValues = new FormData(e.target as HTMLFormElement);
+		dispatcher('reject', { id: configValues.get("id"), reason: configValues.get("reason") });
+		isRejectModalOpen = false;
+	}
+
 	const dispatcher = createEventDispatcher();
 	const onRefresh = () => {
 		dispatcher('refresh');
 	};
+
 	const onReject = (id: string) => {
-		dispatcher('reject', { id });
+		rejectId = id
+		isRejectModalOpen = true;
 	};
+
 	const onDelete = (id: string) => {
-		dispatcher('accept', { id });
+		dispatcher('delete', { id });
 	};
 </script>
 
@@ -108,6 +127,7 @@
 							>
 								<Icon icon="ri:play-circle-line" width="1.6em" />
 							</Button>
+							<Tooltip>Open YouTube</Tooltip>
 						</ButtonGroup>
 					</TableBodyCell>
 					<TableBodyCell>
@@ -119,6 +139,7 @@
 							>
 								<Icon icon="ri:close-line" width="1.6em" />
 							</Button>
+							<Tooltip>Reject Submission</Tooltip>
 							<Button
 								outline
 								class="border-white text-white hover:bg-white hover:text-black"
@@ -126,6 +147,7 @@
 							>
 								<Icon icon="ri:delete-bin-6-line" width="1.6em" />
 							</Button>
+							<Tooltip>Move to Pending</Tooltip>
 						</ButtonGroup>
 					</TableBodyCell>
 				</TableBodyRow>
@@ -142,3 +164,23 @@
 		</div>
 	{/if}
 </div>
+
+<form class="flex flex-col space-y-6" action="#" on:submit|preventDefault={onRejectFormSubmit}>
+	<Modal title="Reject submission" bind:open={isRejectModalOpen} color="red">
+		<div class="mb-6">
+			<label for="rejectReason">Reject reason</label>
+			<input hidden name="id" bind:value={rejectId} />
+			<Textarea
+				id="rejectReason"
+				name="reason"
+				placeholder="Terlalu keren untuk dunia nyata"
+				rows="4"
+				required
+			/>
+		</div>
+		<svelte:fragment slot="footer">
+			<Button type="submit" color="red">Reject</Button>
+			<Button color="alternative">Cancel</Button>
+		</svelte:fragment>
+	</Modal>
+</form>

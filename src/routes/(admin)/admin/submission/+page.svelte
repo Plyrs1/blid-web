@@ -77,7 +77,7 @@
 				sort: 'updated',
 				expand: 'entry,entry.user,entry.car,entry.category,author',
 				fields:
-					'id,expand.author.name,expand.entry.expand.user.name,expand.entry.expand.car.name,expand.entry.expand.category.category,expand.entry.expand.category.subcategory,isApproved,created,updated'
+					'id,expand.author.name,expand.entry.time,expand.entry.expand.user.name,expand.entry.expand.car.name,expand.entry.expand.category.category,expand.entry.expand.category.subcategory,isApproved,reason,created,updated'
 			})) as Array<
 				LbApproveLogResponse<{
 					entry: LbRecordResponse<{
@@ -106,7 +106,8 @@
 			if (!id) return;
 			await pb.collection('lb_approve_log').create({
 				entry: id,
-				isApproved: true
+				isApproved: true,
+				reason: null
 			});
 			$toast = {
 				type: 'success',
@@ -124,14 +125,15 @@
 		}
 	};
 
-	const onReject = async (e: CustomEvent<{ id: string }>) => {
-		console.log({ file: 'submission+page.svelte', func: 'onReject', id: e.detail });
+	const onReject = async (e: CustomEvent<{ id: string, reason: string }>) => {
 		try {
-			const { id } = e.detail;
+			const { id, reason } = e.detail;
+			console.log({ id, reason })
 			if (!id) return;
 			await pb.collection('lb_approve_log').create({
 				entry: id,
-				isApproved: false
+				isApproved: false,
+				reason
 			});
 			$toast = {
 				type: 'success',
@@ -149,13 +151,35 @@
 		}
 	};
 
+	const onDelete = async (e: CustomEvent<{ id: string }>) => {
+		try {
+			const { id } = e.detail;
+			if (!id) return;
+			await pb.collection('lb_record').delete(id);
+			$toast = {
+				type: 'success',
+				message: 'Submission has been deleted successfully',
+				duration: 2000
+			};
+			await getApproveLog(currentPageType);
+		} catch (err) {
+			console.error(err);
+			$toast = {
+				type: 'danger',
+				message: "Cannot delete this submission. Probably because you don't have permisson to do it.",
+				duration: 2000
+			};
+		}
+	}
+
 	const onAcceptLog = async (e: CustomEvent<{ id: string }>) => {
 		console.log({ file: 'submission+page.svelte', func: 'onAcceptLog', id: e.detail });
 		try {
 			const { id } = e.detail;
 			if (!id) return;
 			await pb.collection('lb_approve_log').update(id, {
-				isApproved: true
+				isApproved: true,
+				reason: null
 			});
 			$toast = {
 				type: 'success',
@@ -173,13 +197,14 @@
 		}
 	};
 
-	const onRejectLog = async (e: CustomEvent<{ id: string }>) => {
-		console.log({ file: 'submission+page.svelte', func: 'onRejectLog', id: e.detail });
+	const onRejectLog = async (e: CustomEvent<{ id: string, reason: string }>) => {
 		try {
-			const { id } = e.detail;
+			const { id, reason } = e.detail;
+			console.log({ id, reason })
 			if (!id) return;
 			await pb.collection('lb_approve_log').update(id, {
-				isApproved: false
+				isApproved: false,
+				reason
 			});
 			$toast = {
 				type: 'success',
@@ -198,7 +223,6 @@
 	};
 
 	const onDeleteLog = async (e: CustomEvent<{ id: string }>) => {
-		console.log({ file: 'submission+page.svelte', func: 'onDeleteLog', id: e.detail });
 		try {
 			const { id } = e.detail;
 			if (!id) return;
@@ -236,6 +260,7 @@
 			bind:searchTerm
 			on:accept={onAccept}
 			on:reject={onReject}
+			on:delete={onDelete}
 			on:refresh={() => getSubmissionList()}
 		/>
 	</TabItem>

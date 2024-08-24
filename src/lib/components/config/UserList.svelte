@@ -14,6 +14,7 @@
 	import type { UsersResponse } from '$lib/pocketbaseType';
 	import { createEventDispatcher } from 'svelte';
 	import { delay } from '$lib/helper/misc';
+	import { isCurrentUserAdmin } from '$lib/stores/admin';
 
 	export let items: Array<UsersResponse<Array<string>>> = [];
 
@@ -57,7 +58,7 @@
 		</TableHead>
 		<TableBody tableBodyClass="divide-y">
 			{#each filteredItems as item}
-				<UserListRow {item} on:userpromote on:userdemote on:userban />
+				<UserListRow {item} isAdmin={$isCurrentUserAdmin} on:userpromote on:userdemote on:userban />
 			{/each}
 		</TableBody>
 	</Table>
@@ -79,21 +80,22 @@
 				<span class="font-semibold text-white">{items.length}</span>
 				Entries
 			</div>
-
-			<Pagination
-				table
-				on:next={() => currentPage < items.length / 10 && currentPage++}
-				on:previous={() => currentPage > 1 && currentPage--}
-			>
-				<div slot="prev" class="flex items-center gap-2 text-white">
-					<Icon icon="ri:arrow-drop-up-line" class="-rotate-90 h-full w-auto" width="2em" />
-					Prev
-				</div>
-				<div slot="next" class="flex items-center gap-2 text-white">
-					Next
-					<Icon icon="ri:arrow-drop-up-line" class="rotate-90" width="2em" />
-				</div>
-			</Pagination>
+			{#if items.length > 10}
+				<Pagination
+					table
+					on:next={() => currentPage < items.length / 10 && currentPage++}
+					on:previous={() => currentPage > 1 && currentPage--}
+				>
+					<div slot="prev" class="flex items-center gap-2 text-white">
+						<Icon icon="ri:arrow-drop-up-line" class="-rotate-90 h-full w-auto" width="2em" />
+						Prev
+					</div>
+					<div slot="next" class="flex items-center gap-2 text-white">
+						Next
+						<Icon icon="ri:arrow-drop-up-line" class="rotate-90" width="2em" />
+					</div>
+				</Pagination>
+			{/if}
 		</div>
 	{/if}
 </div>
