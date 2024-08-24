@@ -226,7 +226,7 @@
 
 <Tabs
 	tabStyle="underline"
-	contentClass="p-4 bg-black/40 text-white rounded-lg mt-4"
+	contentClass="p-4 bg-black/40 text-white rounded-lg rounded-t-none border-white border-2"
 	activeClasses="p-4 text-primary-600 bg-white text-black rounded-t-lg"
 	inactiveClasses="p-4 text-white rounded-t-lg hover:text-black hover:bg-white"
 >

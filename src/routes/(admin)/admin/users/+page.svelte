@@ -100,7 +100,7 @@
 			on:userban={onUserBan}
 		/>
 	</TabItem>
-	<TabItem open title="Banned Users">
+	<TabItem title="Banned Users">
 		<UserList
 			items={items.filter((item) => item.isBanned)}
 			on:refresh={onRefresh}
