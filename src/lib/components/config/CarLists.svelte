@@ -3,6 +3,7 @@
 	import type { LbCarsResponse, UsersResponse } from '$lib/pocketbaseType';
 	import Icon from '@iconify/svelte';
 	import {
+		Alert,
 		Button,
 		Input,
 		Pagination,
@@ -56,7 +57,7 @@
 			console.error({ err });
 			$toast = {
 				type: 'danger',
-				message: `Cannot save car. Probably because you don't have permission to edit this car.`,
+				message: "Cannot save car. Probably because you don't have permission to edit this car.",
 				duration: 2000
 			};
 		} finally {
@@ -78,7 +79,7 @@
 			console.error({ err });
 			$toast = {
 				type: 'danger',
-				message: `Cannot delete car.  Probably because you don't have permission to delete this car.`
+				message: "Cannot delete car.  Probably because you don't have permission to delete this car"
 			};
 		} finally {
 			onCancelEdit();
@@ -96,6 +97,11 @@
 	});
 </script>
 
+<Alert color="yellow" class="mb-6">
+	<Icon icon="ri:alert-line" slot="icon" class="w-5 h-5" />
+	<span class="font-bold">Perhatian</span> Kalo mau hapus mobil, pastikan tidak ada entry leaderboard
+	yang menggunakan mobil itu! Jika ada kesalahan nama, lebih baik di edit saja.
+</Alert>
 <div class="flex gap-2 justify-between">
 	<Input placeholder="Search by car name, author" bind:value={searchTerm} class="max-w-64" />
 	<Button

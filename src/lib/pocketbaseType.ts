@@ -6,10 +6,12 @@ import type PocketBase from 'pocketbase';
 import type { RecordService } from 'pocketbase';
 
 export enum Collections {
+	Config = 'config',
 	LbApproveLog = 'lb_approve_log',
 	LbCars = 'lb_cars',
 	LbCategory = 'lb_category',
 	LbRecord = 'lb_record',
+	NfscarsFiles = 'nfscars_files',
 	Users = 'users'
 }
 
@@ -37,6 +39,12 @@ export type AuthSystemFields<T = never> = {
 
 // Record types for each collection
 
+export type ConfigRecord<Tvalue = unknown> = {
+	editedBy?: RecordIdString;
+	name?: string;
+	value?: null | Tvalue;
+};
+
 export type LbApproveLogRecord = {
 	author?: RecordIdString;
 	entry?: RecordIdString;
@@ -63,15 +71,24 @@ export type LbRecordRecord = {
 	user: RecordIdString;
 };
 
+export type NfscarsFilesRecord = {
+	date?: IsoDateString;
+	path?: string;
+	size?: number;
+};
+
 export type UsersRecord<Troles = unknown> = {
 	avatarUrl?: string;
-	banned?: boolean;
+	isBanned?: boolean;
 	discordId?: string;
 	name?: string;
 	roles?: null | Troles;
+	lastLogin?: IsoDateString;
 };
 
 // Response types include system fields and match responses from the PocketBase API
+export type ConfigResponse<Tvalue = unknown, Texpand = unknown> = Required<ConfigRecord<Tvalue>> &
+	BaseSystemFields<Texpand>;
 export type LbApproveLogResponse<Texpand = unknown> = Required<LbApproveLogRecord> &
 	BaseSystemFields<Texpand>;
 export type LbCarsResponse<Texpand = unknown> = Required<LbCarsRecord> & BaseSystemFields<Texpand>;
@@ -79,24 +96,30 @@ export type LbCategoryResponse<Texpand = unknown> = Required<LbCategoryRecord> &
 	BaseSystemFields<Texpand>;
 export type LbRecordResponse<Texpand = unknown> = Required<LbRecordRecord> &
 	BaseSystemFields<Texpand>;
+export type NfscarsFilesResponse<Texpand = unknown> = Required<NfscarsFilesRecord> &
+	BaseSystemFields<Texpand>;
 export type UsersResponse<Troles = unknown, Texpand = unknown> = Required<UsersRecord<Troles>> &
 	AuthSystemFields<Texpand>;
 
 // Types containing all Records and Responses, useful for creating typing helper functions
 
 export type CollectionRecords = {
+	config: ConfigRecord;
 	lb_approve_log: LbApproveLogRecord;
 	lb_cars: LbCarsRecord;
 	lb_category: LbCategoryRecord;
 	lb_record: LbRecordRecord;
+	nfscars_files: NfscarsFilesRecord;
 	users: UsersRecord;
 };
 
 export type CollectionResponses = {
+	config: ConfigResponse;
 	lb_approve_log: LbApproveLogResponse;
 	lb_cars: LbCarsResponse;
 	lb_category: LbCategoryResponse;
 	lb_record: LbRecordResponse;
+	nfscars_files: NfscarsFilesResponse;
 	users: UsersResponse;
 };
 
@@ -104,9 +127,11 @@ export type CollectionResponses = {
 // https://github.com/pocketbase/js-sdk#specify-typescript-definitions
 
 export type TypedPocketBase = PocketBase & {
+	collection(idOrName: 'config'): RecordService<ConfigResponse>;
 	collection(idOrName: 'lb_approve_log'): RecordService<LbApproveLogResponse>;
 	collection(idOrName: 'lb_cars'): RecordService<LbCarsResponse>;
 	collection(idOrName: 'lb_category'): RecordService<LbCategoryResponse>;
 	collection(idOrName: 'lb_record'): RecordService<LbRecordResponse>;
+	collection(idOrName: 'nfscars_files'): RecordService<NfscarsFilesResponse>;
 	collection(idOrName: 'users'): RecordService<UsersResponse>;
 };

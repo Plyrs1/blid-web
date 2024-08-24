@@ -44,11 +44,13 @@
 	const getCars = async () => {
 		try {
 			const res = await pb.collection('lb_cars').getFullList({ sort: '-created' });
-			if (res.length === 0) throw Error(`Can't get data from api`);
-			cars = res.map((data) => ({
-				value: data.id,
-				name: data.name
-			}));
+			if (res.length === 0) throw Error("Can't get data from api");
+			cars = res
+				.map((data) => ({
+					value: data.id,
+					name: data.name
+				}))
+				.sort((a, b) => a.name.localeCompare(b.name));
 		} catch (err) {
 			$toast = { type: 'danger', message: 'Unable to fetch car list' };
 			console.error(err);
@@ -58,7 +60,7 @@
 	const getCategories = async () => {
 		try {
 			const res = await pb.collection('lb_category').getFullList();
-			if (res.length === 0) throw Error(`Can't get data from api`);
+			if (res.length === 0) throw Error("Can't get data from api");
 			res.map((cat) => {
 				const entry = categories.get(cat.category) ?? [];
 				entry.push(cat);

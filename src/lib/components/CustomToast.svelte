@@ -49,7 +49,7 @@
 			contentClass="flex space-x-4 divide-x divide-gray-200"
 			color={colorSelector($toast.type)}
 		>
-			<Icon slot="icon" class={`h-full w-auto text-3xl`} icon={iconSelector($toast.type)} />
+			<Icon slot="icon" class="h-full w-auto text-3xl" icon={iconSelector($toast.type)} />
 			<div class="ps-4 text-sm font-normal self-center">{$toast.message}</div>
 		</Toast>
 	</div>

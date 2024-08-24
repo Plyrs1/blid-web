@@ -61,7 +61,8 @@
 			console.error(err);
 			$toast = {
 				type: 'danger',
-				message: `Cannot fetch pending submission log. Probably you don't have permission to view it.`
+				message:
+					"Cannot fetch pending submission log. Probably you don't have permission to view it"
 			};
 		}
 	};
@@ -92,7 +93,8 @@
 			console.error(err);
 			$toast = {
 				type: 'danger',
-				message: `Cannot fetch approved submission log. Probably you don't have permission to view it.`
+				message:
+					"Cannot fetch approved submission log. Probably you don't have permission to view it"
 			};
 		}
 	};
@@ -165,7 +167,7 @@
 			console.error(err);
 			$toast = {
 				type: 'danger',
-				message: `Cannot approve this submission. Probably you don't have permisson to do it`,
+				message: "Cannot approve this submission. Probably you don't have permisson to do it",
 				duration: 2000
 			};
 		}
@@ -189,7 +191,7 @@
 			console.error(err);
 			$toast = {
 				type: 'danger',
-				message: `Cannot reject this submission. Probably you don't have permisson to do it`,
+				message: "Cannot reject this submission. Probably you don't have permisson to do it",
 				duration: 2000
 			};
 		}
@@ -211,7 +213,7 @@
 			console.error(err);
 			$toast = {
 				type: 'danger',
-				message: `Cannot delete this log. Probably because you don't have permisson to do it.`,
+				message: "Cannot delete this log. Probably because you don't have permisson to do it.",
 				duration: 2000
 			};
 		}

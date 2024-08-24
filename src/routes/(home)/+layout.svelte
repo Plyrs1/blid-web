@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { Navbar, NavBrand, NavLi, NavUl, NavHamburger } from 'flowbite-svelte';
-	import { isScrolled, scrollOffset } from '$lib/stores/page';
+	import { config, isScrolled, scrollOffset } from '$lib/stores/page';
 	import { afterNavigate } from '$app/navigation';
 	import { isAdmin, isModerator } from '$lib/helper/role';
 	import pb from '$lib/pocketbase';
 	import type { UsersResponse } from '$lib/pocketbaseType';
 	import { onMount } from 'svelte';
+	import { parseConfig } from '$lib/helper/misc';
 
 	$: activeUrl = $page.url.pathname;
 	$: currentUser = pb.authStore.model as UsersResponse<Array<string>>;
@@ -28,11 +29,16 @@
 		});
 	}
 
+	const getConfig = async () => {
+		const config = await pb.collection('config').getFullList();
+		return parseConfig(config);
+	};
+
 	afterNavigate(() => {
 		onClickScroll(scrollTop);
 	});
 
-	onMount(() => {
+	onMount(async () => {
 		const loading = document.getElementById('loading-modal');
 		if (loading) {
 			loading.style.opacity = '0';
@@ -40,6 +46,7 @@
 				loading.remove();
 			}, 2000);
 		}
+		$config = await getConfig();
 	});
 	let scrollTop: HTMLElement;
 </script>

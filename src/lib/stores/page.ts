@@ -17,5 +17,7 @@ const isScrolled: Writable<boolean> = writable(false);
 const site: Writable<PageData> = writable({});
 const scrollOffset: Writable<number> = writable(0);
 const toast: Writable<ToastData | null> = writable(null);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const config: Writable<Map<string, Map<string, any>>> = writable(new Map());
 
-export { isScrolled, scrollOffset, site, toast };
+export { isScrolled, scrollOffset, site, toast, config };

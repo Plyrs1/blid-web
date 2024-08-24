@@ -10,12 +10,14 @@
 	} from 'flowbite-svelte';
 	import Icon from '@iconify/svelte';
 	import { page } from '$app/stores';
-	import { beforeNavigate } from '$app/navigation';
+	import { beforeNavigate, goto } from '$app/navigation';
 	import pb from '$lib/pocketbase';
 	import { isAdmin, isModerator } from '$lib/helper/role';
 	import type { UsersResponse } from '$lib/pocketbaseType';
 	import { onMount } from 'svelte';
 	import { newSubmissionCount } from '$lib/stores/admin';
+	import { toast } from '$lib/stores/page';
+	import type { ClientResponseError } from 'pocketbase';
 	let spanClass = 'flex-1 ms-3 whitespace-nowrap';
 
 	let site = {
@@ -34,19 +36,30 @@
 	let currentUser: UsersResponse<Array<string>>;
 
 	const validateUser = async () => {
-		currentUser = (await pb.collection('users').authRefresh()).record as UsersResponse<
-			Array<string>
-		>;
-		if (!pb.authStore.isValid || !(isAdmin(currentUser) || isModerator(currentUser))) {
-			window.location.href = '/logout';
-		} else {
-			const loading = document.getElementById('loading-modal');
-			if (loading) {
-				loading.style.opacity = '0';
-				setTimeout(() => {
-					loading.remove();
-				}, 2000);
+		try {
+			currentUser = (await pb.collection('users').authRefresh()).record as UsersResponse<
+				Array<string>
+			>;
+			if (!pb.authStore.isValid || !(isAdmin(currentUser) || isModerator(currentUser))) {
+				window.location.href = '/logout';
+			} else {
+				const loading = document.getElementById('loading-modal');
+				if (loading) {
+					loading.style.opacity = '0';
+					setTimeout(() => {
+						loading.remove();
+					}, 2000);
+				}
 			}
+		} catch (err) {
+			const error = err as ClientResponseError;
+			if (error.status === 0) return;
+			$toast = {
+				type: 'danger',
+				message: 'Unauthorized, please login'
+			};
+			goto('/');
+			throw err;
 		}
 	};
 
